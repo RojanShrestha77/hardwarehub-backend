@@ -1,8 +1,72 @@
 import { db } from "./database";
 import { products } from "./models/product.model";
+import { categories } from "./models/category.model";
 import { users } from "./models/user.model";
 import { eq } from "drizzle-orm";
 import bcryptjs from "bcryptjs";
+
+const categoryData = [
+    {
+        name: "Power Tools",
+        slug: "power-tools",
+        description: "Electric and battery-powered tools including drills, angle grinders, jigsaws, and circular saws for heavy-duty work.",
+        icon: "⚡",
+    },
+    {
+        name: "Hand Tools",
+        slug: "hand-tools",
+        description: "Essential manual tools — hammers, screwdrivers, pliers, wrenches, and spanners for everyday tasks.",
+        icon: "🔨",
+    },
+    {
+        name: "Measuring Tools",
+        slug: "measuring-tools",
+        description: "Spirit levels, tape measures, try squares, laser levels, and calipers for accurate measurements.",
+        icon: "📏",
+    },
+    {
+        name: "Cutting Tools",
+        slug: "cutting-tools",
+        description: "Utility knives, chisels, hacksaws, bolt cutters, and wire cutters for precise cutting jobs.",
+        icon: "✂️",
+    },
+    {
+        name: "Fastening Tools",
+        slug: "fastening-tools",
+        description: "Nail guns, staple guns, rivet guns, and impact drivers for quick and secure fastening.",
+        icon: "🔩",
+    },
+    {
+        name: "Electrical Tools",
+        slug: "electrical-tools",
+        description: "Multimeters, wire strippers, soldering irons, voltage testers, and cable management tools.",
+        icon: "🔌",
+    },
+    {
+        name: "Plumbing Tools",
+        slug: "plumbing-tools",
+        description: "Pipe wrenches, pipe cutters, basin wrenches, drain snakes, and plungers for all plumbing needs.",
+        icon: "🪠",
+    },
+    {
+        name: "Safety Equipment",
+        slug: "safety-equipment",
+        description: "Hard hats, safety goggles, work gloves, ear defenders, dust masks, and hi-vis vests.",
+        icon: "🦺",
+    },
+    {
+        name: "Woodworking Tools",
+        slug: "woodworking-tools",
+        description: "Wood chisels, hand planes, wood routers, orbital sanders, and carving tools for woodwork projects.",
+        icon: "🪵",
+    },
+    {
+        name: "Automotive Tools",
+        slug: "automotive-tools",
+        description: "Socket sets, torque wrenches, car jacks, OBD scanners, and tyre inflators for vehicle maintenance.",
+        icon: "🔧",
+    },
+];
 
 const productData = [
   {
@@ -154,7 +218,13 @@ const productData = [
 async function seed() {
   console.log("🌱 Seeding database...");
 
-  // 1. Create a seed seller user
+  // 1. Seed categories
+  await db.delete(categories);
+  const insertedCategories = await db.insert(categories).values(categoryData).returning();
+  console.log(`  ✓ Seeded ${insertedCategories.length} categories`);
+  insertedCategories.forEach((c) => console.log(`    • ${c.icon} ${c.name}`));
+
+  // 2. Create a seed seller user
   await db.delete(products);
   console.log("  ✓ Cleared existing products");
 

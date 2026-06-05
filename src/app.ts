@@ -7,6 +7,7 @@ import { authRoutes } from "./routes/auth.routes";
 import { productRoutes } from "./routes/product.routes";
 import { cartRoutes } from "./routes/cart.routes";
 import { sellerRoutes } from "./routes/seller.routes";
+import { categoryRoutes } from "./routes/category.routes";
 import { HttpError } from "./errors/HttpError";
 
 export const app = new Elysia()
@@ -30,4 +31,5 @@ export const app = new Elysia()
   .use(authRoutes)
   .use(productRoutes)
   .use(cartRoutes)
-  .use(sellerRoutes);
+  .use(sellerRoutes)
+  .use(categoryRoutes);
