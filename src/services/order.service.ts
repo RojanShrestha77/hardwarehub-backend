@@ -15,7 +15,19 @@ function generateOrderNumber(): string {
 }
 
 function formatOrder(order: any) {
-  return { ...order, _id: order.id };
+  return {
+    ...order,
+    _id: order.id,
+    shippingAddress: {
+      fullName: order.shippingFullName,
+      phone:    order.shippingPhone,
+      address:  order.shippingAddress,
+      city:     order.shippingCity,
+      state:    order.shippingState,
+      zipCode:  order.shippingZipCode,
+      country:  order.shippingCountry,
+    },
+  };
 }
 
 export class OrderService {
