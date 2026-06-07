@@ -8,6 +8,10 @@ import { productRoutes } from "./routes/product.routes";
 import { cartRoutes } from "./routes/cart.routes";
 import { sellerRoutes } from "./routes/seller.routes";
 import { categoryRoutes } from "./routes/category.routes";
+import { orderRoutes } from "./routes/order.routes";
+import { wishlistRoutes } from "./routes/wishlist.routes";
+import { reviewRoutes } from "./routes/review.routes";
+import { notificationRoutes } from "./routes/notification.routes";
 import { HttpError } from "./errors/HttpError";
 
 export const app = new Elysia()
@@ -32,4 +36,8 @@ export const app = new Elysia()
   .use(productRoutes)
   .use(cartRoutes)
   .use(sellerRoutes)
-  .use(categoryRoutes);
+  .use(categoryRoutes)
+  .use(orderRoutes)
+  .use(wishlistRoutes)
+  .use(reviewRoutes)
+  .use(notificationRoutes);
