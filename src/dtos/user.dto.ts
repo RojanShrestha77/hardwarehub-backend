@@ -5,7 +5,6 @@ export const RegisterDto = UserSchema.pick({
     name: true,
     email: true,
     password: true,
-    role: true,
 }).extend({
     confirmPassword: z.string().min(6, "Confirm password must be at least 6 characters"),
 }).refine(

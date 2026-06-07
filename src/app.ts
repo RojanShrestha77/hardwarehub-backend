@@ -12,6 +12,7 @@ import { orderRoutes } from "./routes/order.routes";
 import { wishlistRoutes } from "./routes/wishlist.routes";
 import { reviewRoutes } from "./routes/review.routes";
 import { notificationRoutes } from "./routes/notification.routes";
+import { adminRoutes } from "./routes/admin.routes";
 import { HttpError } from "./errors/HttpError";
 
 export const app = new Elysia()
@@ -40,4 +41,5 @@ export const app = new Elysia()
   .use(orderRoutes)
   .use(wishlistRoutes)
   .use(reviewRoutes)
-  .use(notificationRoutes);
+  .use(notificationRoutes)
+  .use(adminRoutes);
