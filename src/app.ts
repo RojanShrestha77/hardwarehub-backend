@@ -14,6 +14,7 @@ import { reviewRoutes } from "./routes/review.routes";
 import { notificationRoutes } from "./routes/notification.routes";
 import { adminRoutes } from "./routes/admin.routes";
 import { HttpError } from "./errors/HttpError";
+import { issueRoutes } from "./routes/issue.routes";
 
 export const app = new Elysia()
   .use(cors({ origin: FRONTEND_URL }))
@@ -42,4 +43,5 @@ export const app = new Elysia()
   .use(wishlistRoutes)
   .use(reviewRoutes)
   .use(notificationRoutes)
+  .use(issueRoutes)
   .use(adminRoutes);
