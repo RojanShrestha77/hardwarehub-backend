@@ -3,12 +3,13 @@ import { db } from "../database";
 import { users } from "../models/user.model";
 import { products } from "../models/product.model";
 import { orders, orderItems } from "../models/order.model";
+import { sellerApplications } from "../models/sellerApplication.model";
 
 export class AdminRepository {
   // ── Dashboard ────────────────────────────────────────────────────────────────
 
   async getDashboardStats() {
-    const [[buyers], [sellers], [pending], [prods], [ords], [rev]] = await Promise.all([
+    const [[buyers], [sellers], [pending], [prods], [ords], [rev], [pendingApps]] = await Promise.all([
       db.select({ count: count() }).from(users).where(eq(users.role, "user")),
       db.select({ count: count() }).from(users).where(eq(users.role, "seller")),
       db.select({ count: count() }).from(users).where(and(eq(users.role, "seller"), eq(users.isApproved, false))),
@@ -16,6 +17,7 @@ export class AdminRepository {
       db.select({ count: count() }).from(orders),
       db.select({ revenue: sql<number>`COALESCE(SUM(${orders.total}), 0)::bigint` })
         .from(orders).where(ne(orders.status, "cancelled")),
+      db.select({ count: count() }).from(sellerApplications).where(eq(sellerApplications.status, "pending")),
     ]);
 
     const recentOrders = await db
@@ -25,11 +27,12 @@ export class AdminRepository {
       .limit(8);
 
     return {
-      totalUsers:      buyers?.count  ?? 0,
-      totalSellers:    sellers?.count ?? 0,
-      pendingSellers:  pending?.count ?? 0,
-      totalProducts:   prods?.count   ?? 0,
-      totalOrders:     ords?.count    ?? 0,
+      totalUsers:          buyers?.count      ?? 0,
+      totalSellers:        sellers?.count     ?? 0,
+      pendingSellers:      pending?.count     ?? 0,
+      pendingApplications: pendingApps?.count ?? 0,
+      totalProducts:       prods?.count       ?? 0,
+      totalOrders:         ords?.count        ?? 0,
       totalRevenue:    Number(rev?.revenue ?? 0),
       recentOrders,
     };

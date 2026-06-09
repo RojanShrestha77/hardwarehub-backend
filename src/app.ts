@@ -16,6 +16,7 @@ import { adminRoutes } from "./routes/admin.routes";
 import { HttpError } from "./errors/HttpError";
 import { issueRoutes } from "./routes/issue.routes";
 import { paymentRoutes } from "./routes/payment.routes";
+import { sellerApplicationRoutes } from "./routes/sellerApplication.routes";
 
 export const app = new Elysia()
   .use(cors({ origin: FRONTEND_URL }))
@@ -46,4 +47,5 @@ export const app = new Elysia()
   .use(notificationRoutes)
   .use(issueRoutes)
   .use(paymentRoutes)
+  .use(sellerApplicationRoutes)
   .use(adminRoutes);
