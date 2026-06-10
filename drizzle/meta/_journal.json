@@ -43,6 +43,13 @@
       "when": 1780833740635,
       "tag": "0005_far_morlun",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781024645543,
+      "tag": "0006_tiny_johnny_storm",
+      "breakpoints": true
     }
   ]
 }
