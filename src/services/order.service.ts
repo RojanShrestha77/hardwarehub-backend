@@ -1,11 +1,15 @@
 import { OrderRepository } from "../repositories/order.repository";
 import { CartRepository } from "../repositories/cart.repository";
+import { UserRepository } from "../repositories/user.repository";
 import { NotificationService } from "./notification.service";
 import { HttpError } from "../errors/HttpError";
 import type { CreateOrderDto } from "../dtos/order.dto";
+import { sendEmail } from "../configs/email";
+import { orderConfirmationTemplate } from "../utils/emailTemplates";
 
 const orderRepo        = new OrderRepository();
 const cartRepo         = new CartRepository();
+const userRepo         = new UserRepository();
 const notificationSvc  = new NotificationService();
 
 function generateOrderNumber(): string {
@@ -75,7 +79,7 @@ export class OrderService {
     // Clear cart after successful order
     await cartRepo.clearCart(userId);
 
-    // Notify user
+    // In-app notification
     await notificationSvc.createNotification(
       userId,
       "Order Placed",
@@ -84,6 +88,34 @@ export class OrderService {
       order.id,
       `/orders/${order.id}`,
     );
+
+    // Order confirmation email (non-blocking)
+    userRepo.getUserById(userId).then((user) => {
+      if (!user) return;
+      const { subject, html } = orderConfirmationTemplate({
+        customerName:    user.name,
+        orderNumber:     order.orderNumber,
+        orderId:         order.id,
+        items:           dto.items.map((i) => ({
+          productName:  i.productName,
+          quantity:     i.quantity,
+          price:        i.price,
+        })),
+        subtotal,
+        shippingCost,
+        total,
+        paymentMethod:   dto.paymentMethod,
+        shippingAddress: {
+          fullName: dto.shippingAddress.fullName,
+          address:  dto.shippingAddress.address,
+          city:     dto.shippingAddress.city,
+          phone:    dto.shippingAddress.phone,
+        },
+      });
+      sendEmail(user.email, subject, html).catch((e) =>
+        console.error("[email] order confirmation failed:", e.message)
+      );
+    }).catch(() => {});
 
     return formatOrder(order);
   }

@@ -9,3 +9,6 @@ export const KHALTI_BASE_URL   = process.env.KHALTI_BASE_URL || "https://dev.kha
 export const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || "";
 export const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || "";
 export const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || "";
+
+export const EMAIL_USER = process.env.EMAIL_USER || "";
+export const EMAIL_PASS = process.env.EMAIL_PASS || "";
