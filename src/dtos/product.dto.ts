@@ -10,7 +10,7 @@ export const CreateProductDto = z.object({
   stock:         z.number().int().min(0, "Stock cannot be negative").default(0),
   badge:         z.string().optional(),
   imageUrl:      z.string().url().optional(),
-  specs:         z.record(z.string()).optional(),
+  specs:         z.record(z.string(), z.string()).optional(),
   sellerId:      z.string().uuid("Invalid seller ID"),
 });
 

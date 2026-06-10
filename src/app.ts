@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
-import { staticPlugin } from "@elysiajs/static";
+// import { staticPlugin } from "@elysiajs/static";
 import { FRONTEND_URL } from "./configs";
 import { authRoutes } from "./routes/auth.routes";
 import { productRoutes } from "./routes/product.routes";
@@ -21,7 +21,6 @@ import { sellerApplicationRoutes } from "./routes/sellerApplication.routes";
 export const app = new Elysia()
   .use(cors({ origin: FRONTEND_URL }))
   .use(swagger({ path: "/docs" }))
-  .use(staticPlugin({ assets: "uploads", prefix: "/uploads" }))
   .onError(({ error, code, set }) => {
     if (error instanceof HttpError) {
       set.status = error.statusCode;

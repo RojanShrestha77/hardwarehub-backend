@@ -37,11 +37,12 @@ export class SellerService {
         return sellerWithoutPassword;
     }
 
-    /**
-     * Get all products for a specific seller
-     */
     async getProductsBySellerId(sellerId: string) {
         return sellerRepository.getProductsBySellerId(sellerId);
+    }
+
+    async getProductById(productId: string) {
+        return sellerRepository.getProductById(productId);
     }
 
     /**
