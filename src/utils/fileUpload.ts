@@ -47,9 +47,26 @@
 // }
 
 
+import sharp from "sharp";
 import { uploadBuffer } from "./cloudinary";
 
-const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_SIZE    = 5 * 1024 * 1024; // 5 MB
+const MIN_DIM     = 400;
+const MAX_RATIO   = 3;
+
+async function validateImage(buffer: Buffer): Promise<void> {
+  const meta = await sharp(buffer).metadata();
+  const w = meta.width ?? 0;
+  const h = meta.height ?? 0;
+
+  if (w < MIN_DIM || h < MIN_DIM) {
+    throw new Error(`Image too small: ${w}x${h}. Minimum ${MIN_DIM}x${MIN_DIM}px.`);
+  }
+  const ratio = w / h;
+  if (ratio > MAX_RATIO || ratio < 1 / MAX_RATIO) {
+    throw new Error(`Aspect ratio too extreme (${w}x${h}). Keep between 1:${MAX_RATIO} and ${MAX_RATIO}:1.`);
+  }
+}
 
 export async function saveFile(file: File, folder?: string): Promise<string> {
   if (!file.type.startsWith("image/")) {
@@ -60,6 +77,7 @@ export async function saveFile(file: File, folder?: string): Promise<string> {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
+  await validateImage(buffer);
   return uploadBuffer(buffer, folder ?? "hardwarehub/products", file.type);
 }
 

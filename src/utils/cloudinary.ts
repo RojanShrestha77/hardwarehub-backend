@@ -12,6 +12,8 @@ export { cloudinary };
 // upload a raw buffer to cloudinary
 // return the secure https url
 
+const REMOVE_BG = process.env.CLOUDINARY_REMOVE_BG === "true";
+
 export async function uploadBuffer(
     buffer: Buffer,
     folder = "hardwarehub/products",
@@ -22,9 +24,10 @@ export async function uploadBuffer(
             {
                 folder,
                 resource_type: "image",
-                format: "webp",        //auto convert to webp for smaller size
+                format: "webp",
                 quality: "auto:good",
                 overwrite: false,
+                ...(REMOVE_BG && { background_removal: "upload" }),
             },
             (error, result) => {
                 if(error || !result) return reject(error ?? new Error("Cloudinary upload failed"));
@@ -32,7 +35,7 @@ export async function uploadBuffer(
             }
         );
         stream.end(buffer);
-    }) 
+    })
 }
 
 // delete an image by its cloudinary public_id.
