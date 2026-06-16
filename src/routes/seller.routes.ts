@@ -3,9 +3,11 @@ import { sellerController } from "../controller/seller.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { sellerAuthMiddleware } from "../middlewares/sellerAuth.middleware";
 
-// Bun's multipart parser auto-parses JSON-like strings (e.g. '{}' → {}),
-// so specs arrives as an object even though the client serialised it as a string.
-const specsField = t.Optional(t.Union([t.String(), t.Record(t.String(), t.String())]));
+// Bun's multipart parser auto-parses JSON-like field values (e.g. '{"k":"v"}' → object,
+// '["a","b"]' → array). Every JSON field must accept both the raw string AND the parsed form.
+const specsField     = t.Optional(t.Union([t.String(), t.Record(t.String(), t.String())]));
+const existingImgsFld = t.Optional(t.Union([t.String(), t.Array(t.String())]));
+const variantsFld    = t.Optional(t.Union([t.String(), t.Array(t.Any())]));
 
 const productCreateBody = t.Object({
     name: t.String(),
@@ -18,6 +20,10 @@ const productCreateBody = t.Object({
     badge: t.Optional(t.String()),
     specs: specsField,
     image: t.Optional(t.File()),
+    images: t.Optional(t.Union([t.File(), t.Array(t.File())])),
+    existingImages: existingImgsFld,
+    primaryImageIndex: t.Optional(t.Union([t.Number(), t.String()])),
+    variants: variantsFld,
 });
 
 const productUpdateBody = t.Object({
@@ -31,6 +37,10 @@ const productUpdateBody = t.Object({
     badge: t.Optional(t.String()),
     specs: specsField,
     image: t.Optional(t.File()),
+    images: t.Optional(t.Union([t.File(), t.Array(t.File())])),
+    existingImages: existingImgsFld,
+    primaryImageIndex: t.Optional(t.Union([t.Number(), t.String()])),
+    variants: variantsFld,
 });
 
 export const sellerRoutes = new Elysia({ prefix: "/api/seller" })

@@ -15,7 +15,13 @@ export const products = pgTable("products", {
   reviewCount:   integer("review_count").default(0),
   badge:         varchar("badge", { length: 50 }),
   imageUrl:      text("image_url"),
+  images:        jsonb("images").$type<Array<{ url: string; isPrimary: boolean }>>(),
   specs:         jsonb("specs").$type<Record<string, string>>(),
+  variants: jsonb("variants").$type<Array<{
+    label: string;    //e.g, "Small", xl, 256gb
+    price: number;
+    stock: number;
+  }>>(),
   createdAt:     timestamp("created_at").defaultNow().notNull(),
   updatedAt:     timestamp("updated_at").defaultNow().notNull(),
 });

@@ -25,7 +25,18 @@ export const CreateSellerProductDto = z.object({
     stock: z.number().int().min(0, "Stock cannot be negative").default(0),
     badge: z.string().optional(),
     imageUrl: z.string().optional(),
+    images: z.array(z.object({
+        url: z.string(),
+        isPrimary: z.boolean(),
+    })).optional(),
     specs: z.record(z.string(), z.string()).optional(),
+    variants: z.array(
+        z.object({
+            label: z.string().min(1),
+            price: z.number().positive(),
+            stock: z.number().int().min(0),
+        })
+    ).optional(),
 });
 
 export type CreateSellerProductDto = z.infer<typeof CreateSellerProductDto>;

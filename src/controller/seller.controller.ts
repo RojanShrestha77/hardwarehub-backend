@@ -99,10 +99,52 @@ export const sellerController = {
                 }
             }
 
-            // Extract image file if present
-            if (body.image && body.image instanceof File && body.image.size > 0) {
+            // variants arrives as a JSON string from FormData — parse it before validation
+            if (body.variants !== undefined) {
+                if (typeof body.variants === "string") {
+                    try { productPayload.variants = JSON.parse(body.variants); } catch { productPayload.variants = []; }
+                } else if (Array.isArray(body.variants)) {
+                    productPayload.variants = body.variants;
+                }
+            }
+
+            // Handle images: combine kept existing URLs + newly uploaded files
+            const primaryIndex = Number(body.primaryImageIndex ?? 0);
+
+            // Parse existing image URLs sent from the client (URLs already on Cloudinary).
+            // Bun auto-parses JSON-like multipart strings, so handle both string and array.
+            let existingUrls: string[] = [];
+            if (body.existingImages) {
+                if (Array.isArray(body.existingImages)) {
+                    existingUrls = body.existingImages;
+                } else if (typeof body.existingImages === "string") {
+                    try { existingUrls = JSON.parse(body.existingImages); } catch {}
+                }
+            }
+
+            // Upload any new files
+            let newUrls: string[] = [];
+            const rawImages = body.images;
+            if (rawImages) {
+                const files = Array.isArray(rawImages) ? rawImages : [rawImages];
+                const validFiles = files.filter((f: any) => f instanceof File && f.size > 0);
+                if (validFiles.length > 0) {
+                    const { saveFiles } = await import("../utils/fileUpload");
+                    newUrls = await saveFiles(validFiles, "hardwarehub/products");
+                }
+            }
+
+            // Combine: existing first, then new uploads
+            const allUrls = [...existingUrls, ...newUrls];
+            if (allUrls.length > 0) {
+                const safeIndex = Math.min(primaryIndex, allUrls.length - 1);
+                productPayload.images = allUrls.map((url: string, i: number) => ({ url, isPrimary: i === safeIndex }));
+                productPayload.imageUrl = allUrls[safeIndex];
+            } else if (body.image && body.image instanceof File && body.image.size > 0) {
+                // fallback: single image field (legacy)
                 const imageUrl = await saveFile(body.image);
                 productPayload.imageUrl = imageUrl;
+                productPayload.images = [{ url: imageUrl, isPrimary: true }];
             }
 
             // Validate product data
@@ -168,10 +210,51 @@ export const sellerController = {
                 }
             }
 
-            // Extract image file if present
-            if (body.image && body.image instanceof File && body.image.size > 0) {
+            // variants arrives as a JSON string from FormData — parse it before validation
+            if (body.variants !== undefined) {
+                if (typeof body.variants === "string") {
+                    try { productPayload.variants = JSON.parse(body.variants); } catch { productPayload.variants = []; }
+                } else if (Array.isArray(body.variants)) {
+                    productPayload.variants = body.variants;
+                }
+            }
+
+            // Handle images: combine kept existing URLs + newly uploaded files
+            const primaryIndex = Number(body.primaryImageIndex ?? 0);
+
+            // Parse existing image URLs sent from the client.
+            // Bun auto-parses JSON-like multipart strings, so handle both string and array.
+            let existingUrls: string[] = [];
+            if (body.existingImages) {
+                if (Array.isArray(body.existingImages)) {
+                    existingUrls = body.existingImages;
+                } else if (typeof body.existingImages === "string") {
+                    try { existingUrls = JSON.parse(body.existingImages); } catch {}
+                }
+            }
+
+            // Upload any new files
+            let newUrls: string[] = [];
+            const rawImages = body.images;
+            if (rawImages) {
+                const files = Array.isArray(rawImages) ? rawImages : [rawImages];
+                const validFiles = files.filter((f: any) => f instanceof File && f.size > 0);
+                if (validFiles.length > 0) {
+                    const { saveFiles } = await import("../utils/fileUpload");
+                    newUrls = await saveFiles(validFiles, "hardwarehub/products");
+                }
+            }
+
+            // Combine and apply primary index
+            const allUrls = [...existingUrls, ...newUrls];
+            if (allUrls.length > 0) {
+                const safeIndex = Math.min(primaryIndex, allUrls.length - 1);
+                productPayload.images = allUrls.map((url: string, i: number) => ({ url, isPrimary: i === safeIndex }));
+                productPayload.imageUrl = allUrls[safeIndex];
+            } else if (body.image && body.image instanceof File && body.image.size > 0) {
                 const imageUrl = await saveFile(body.image);
                 productPayload.imageUrl = imageUrl;
+                productPayload.images = [{ url: imageUrl, isPrimary: true }];
             }
 
             // Validate product data
