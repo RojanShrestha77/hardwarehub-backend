@@ -53,6 +53,8 @@ import { uploadBuffer } from "./cloudinary";
 const MAX_SIZE    = 5 * 1024 * 1024; // 5 MB
 const MIN_DIM     = 400;
 const MAX_RATIO   = 3;
+const CANVAS_SIZE = 1200;
+const PROD_MAX    = 1080; // max product dimension inside canvas (gives 60px padding each side)
 
 async function validateImage(buffer: Buffer): Promise<void> {
   const meta = await sharp(buffer).metadata();
@@ -68,6 +70,31 @@ async function validateImage(buffer: Buffer): Promise<void> {
   }
 }
 
+/**
+ * Composite the product image onto a uniform white square canvas.
+ * This ensures every product image has the same dimensions, same
+ * white background, and the product is centered — so product cards
+ * look consistent regardless of the seller's original image quality.
+ */
+export async function compositeOnWhiteCanvas(buffer: Buffer): Promise<Buffer> {
+  const productPng = await sharp(buffer)
+    .resize(PROD_MAX, PROD_MAX, { fit: "inside", withoutEnlargement: true })
+    .png()
+    .toBuffer();
+
+  return sharp({
+    create: {
+      width: CANVAS_SIZE,
+      height: CANVAS_SIZE,
+      channels: 4,
+      background: { r: 255, g: 255, b: 255, alpha: 1 },
+    },
+  })
+    .composite([{ input: productPng, gravity: "center" }])
+    .png()
+    .toBuffer();
+}
+
 export async function saveFile(file: File, folder?: string): Promise<string> {
   if (!file.type.startsWith("image/")) {
     throw new Error("Only image files are allowed");
@@ -78,7 +105,8 @@ export async function saveFile(file: File, folder?: string): Promise<string> {
 
   const buffer = Buffer.from(await file.arrayBuffer());
   await validateImage(buffer);
-  return uploadBuffer(buffer, folder ?? "hardwarehub/products", file.type);
+  const composited = await compositeOnWhiteCanvas(buffer);
+  return uploadBuffer(composited, folder ?? "hardwarehub/products", file.type);
 }
 
 export async function saveFiles(files: File[], folder?: string): Promise<string[]> {
