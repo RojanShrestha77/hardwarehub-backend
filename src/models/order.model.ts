@@ -21,6 +21,7 @@ export const orders = pgTable("orders", {
   tax:                integer("tax").notNull().default(0),
   total:              integer("total").notNull(),
   notes:              text("notes"),
+  khaltiPidx:         varchar("khalti_pidx", { length: 100 }),
   createdAt:          timestamp("created_at").defaultNow().notNull(),
   updatedAt:          timestamp("updated_at").defaultNow().notNull(),
 });

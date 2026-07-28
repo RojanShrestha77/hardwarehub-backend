@@ -10,6 +10,10 @@ export const users = pgTable("users", {
     role: varchar("role", { length: 20 }).notNull().default("user"),
     isApproved: boolean("is_approved").notNull().default(false),
     imageUrl: text("image_url"),
+    phone: varchar("phone", { length: 20 }),
+    street: text("street"),
+    city: varchar("city", { length: 100 }),
+    postalCode: varchar("postal_code", { length: 20 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

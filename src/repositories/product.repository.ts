@@ -1,4 +1,4 @@
-import { eq, ilike, and, gte, lte, desc, asc, or } from "drizzle-orm";
+import { eq, ilike, and, gte, lte, desc, asc, or, count, sql } from "drizzle-orm";
 import { db } from "../database";
 import { products } from "../models/product.model";
 import type { ProductSelect, ProductInsert } from "../models/product.model";
@@ -25,6 +25,8 @@ export class ProductRepository {
     minPrice?: number;
     maxPrice?: number;
     sort?:     string;
+    page?:     number;
+    size?:     number;
   }) {
     const conditions = [];
 
@@ -47,15 +49,42 @@ export class ProductRepository {
       conditions.push(lte(products.price, filters.maxPrice));
     }
 
-    const query = db.select().from(products);
-    if (conditions.length > 0) query.where(and(...conditions));
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+    // Count matching records
+    const countResult = await db
+      .select({ count: count() })
+      .from(products)
+      .where(whereClause);
+    const total = Number(countResult[0]?.count || 0);
+    const page = filters.page || 1;
+    const size = filters.size || 20;
+    const totalPages = Math.ceil(total / size);
+    const offset = (page - 1) * size;
+
+    // Fetch page
+    let query = db.select().from(products).where(whereClause);
 
     switch (filters.sort) {
-      case "price-asc":  return query.orderBy(asc(products.price));
-      case "price-desc": return query.orderBy(desc(products.price));
-      case "rating":     return query.orderBy(desc(products.rating));
-      default:           return query.orderBy(desc(products.createdAt));
+      case "price-asc":  query = query.orderBy(asc(products.price)); break;
+      case "price-desc": query = query.orderBy(desc(products.price)); break;
+      case "rating":     query = query.orderBy(desc(products.rating)); break;
+      default:           query = query.orderBy(desc(products.createdAt));
     }
+
+    query = query.limit(size).offset(offset);
+    const data = await query;
+
+    return {
+      products: data,
+      pagination: {
+        page,
+        size,
+        total,
+        totalPages,
+        hasMore: page < totalPages,
+      },
+    };
   }
 
   async updateProduct(id: string, data: Partial<ProductInsert>) {

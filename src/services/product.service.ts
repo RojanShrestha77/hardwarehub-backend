@@ -19,6 +19,8 @@ export class ProductService {
     minPrice?: number;
     maxPrice?: number;
     sort?:     string;
+    page?:     number;
+    size?:     number;
   }) {
     return productRepo.getProductsWithFilters(filters);
   }

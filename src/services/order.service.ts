@@ -41,7 +41,7 @@ export class OrderService {
     }
 
     const subtotal    = dto.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const shippingCost = dto.shippingCost ?? (subtotal >= 5000 ? 0 : 200);
+    const shippingCost = dto.shippingCost ?? 0;
     const total       = subtotal + shippingCost;
 
     const orderData = {

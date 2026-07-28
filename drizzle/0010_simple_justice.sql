@@ -1,0 +1,1 @@
+ALTER TABLE "orders" ADD COLUMN "khalti_pidx" varchar(100);

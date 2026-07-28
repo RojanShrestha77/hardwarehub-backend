@@ -64,6 +64,20 @@
       "when": 1781526087090,
       "tag": "0008_simple_thundra",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1784917467454,
+      "tag": "0009_stiff_juggernaut",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1784919174829,
+      "tag": "0010_simple_justice",
+      "breakpoints": true
     }
   ]
 }

@@ -1,7 +1,8 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
-// import { staticPlugin } from "@elysiajs/static";
+import { staticPlugin } from "@elysiajs/static";
+import { join } from "path";
 import { FRONTEND_URL } from "./configs";
 import { authRoutes } from "./routes/auth.routes";
 import { productRoutes } from "./routes/product.routes";
@@ -17,10 +18,12 @@ import { HttpError } from "./errors/HttpError";
 import { issueRoutes } from "./routes/issue.routes";
 import { paymentRoutes } from "./routes/payment.routes";
 import { sellerApplicationRoutes } from "./routes/sellerApplication.routes";
+import { userRoutes } from "./routes/user.routes";
 
 export const app = new Elysia()
   .use(cors({ origin: FRONTEND_URL }))
   .use(swagger({ path: "/docs" }))
+  .use(staticPlugin({ assets: join(process.cwd(), "uploads"), prefix: "/uploads" }))
   .onError(({ error, code, set }) => {
     if (error instanceof HttpError) {
       set.status = error.statusCode;
@@ -47,4 +50,5 @@ export const app = new Elysia()
   .use(issueRoutes)
   .use(paymentRoutes)
   .use(sellerApplicationRoutes)
-  .use(adminRoutes);
+  .use(adminRoutes)
+  .use(userRoutes);

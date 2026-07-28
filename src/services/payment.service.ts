@@ -46,7 +46,7 @@ export const paymentService = {
 
     // save pidx to order so we can verify later
     await db.update(orders)
-      .set({ khaltiPidx: pidx, paymentStatus: "pending_payment" } as any)
+      .set({ khaltiPidx: pidx, paymentStatus: "pending_payment" })
       .where(eq(orders.id, orderId));
 
     return { payment_url, pidx, orderId: order.id };
@@ -62,33 +62,37 @@ export const paymentService = {
       body: JSON.stringify({ pidx }),
     });
 
+    const rawText = await response.text();
+    console.log("[khalti verify] status:", response.status, "body:", rawText);
+
     if (!response.ok) {
-      throw new HttpError(400, "Failed to verify payment with Khalti");
+      throw new HttpError(400, `Failed to verify payment with Khalti: ${rawText}`);
     }
 
-    const data = await response.json() as any;
+    const data = JSON.parse(rawText) as any;
+
+    console.log("[khalti verify] payment status from Khalti:", data.status);
 
     if (data.status !== "Completed") {
       throw new HttpError(400, `Payment not completed. Status: ${data.status}`);
     }
 
-    const orderId = data.purchase_order_id;
-    const [order] = await db.select().from(orders).where(eq(orders.id, orderId));
+    const [order] = await db.select().from(orders).where(eq(orders.khaltiPidx, pidx));
     if (!order) throw new HttpError(404, "Order not found");
 
     // mark order as paid
     await db.update(orders)
       .set({ paymentStatus: "paid", status: "processing" })
-      .where(eq(orders.id, orderId));
+      .where(eq(orders.id, order.id));
 
     await notificationSvc.createNotification(
       order.userId,
       "Payment Successful",
       `Payment for order #${order.orderNumber} was successful!`,
       "order",
-      orderId,
+      order.id,
     );
 
-    return { orderId };
+    return { orderId: order.id };
   },
 };

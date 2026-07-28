@@ -17,7 +17,13 @@ export const paymentController = {
             set.status = 400;
             return { success: false, message: "pidx is required"};
         }
-        const result = await paymentService.verifyKhaltiPayment(pidx);
-        return { success: true, message: "Payment verified", data: result };
+        try {
+            const result = await paymentService.verifyKhaltiPayment(pidx);
+            return { success: true, message: "Payment verified", data: result };
+        } catch (error: any) {
+            console.error("[khalti verify] controller error:", error.message);
+            set.status = error.statusCode || 400;
+            return { success: false, message: error.message || "Payment verification failed" };
+        }
     }
 }

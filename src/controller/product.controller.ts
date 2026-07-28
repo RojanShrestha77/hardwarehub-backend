@@ -8,14 +8,18 @@ export const productController = {
   async getAll({ query, set }: { query: any; set: any }) {
     try {
       const { search, category, minPrice, maxPrice, sort } = query;
-      const products = await productService.getProductsWithFilters({
+      const page = Math.max(1, Number(query.page) || 1);
+      const size = Math.min(100, Math.max(1, Number(query.size) || 20));
+      const result = await productService.getProductsWithFilters({
         search,
         category,
         minPrice: minPrice ? Number(minPrice) : undefined,
         maxPrice: maxPrice ? Number(maxPrice) : undefined,
         sort,
+        page,
+        size,
       });
-      return { success: true, message: "Products fetched successfully", data: products };
+      return { success: true, message: "Products fetched successfully", data: result.products, pagination: result.pagination };
     } catch (error) {
       const err = error as HttpError;
       set.status = err.statusCode || 500;

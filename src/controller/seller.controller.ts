@@ -2,7 +2,6 @@ import { SellerService } from "../services/seller.service";
 import { RegisterSellerDto, CreateSellerProductDto, UpdateSellerProductDto } from "../dtos/seller.dto";
 import { HttpError } from "../errors/HttpError";
 import { saveFile } from "../utils/fileUpload";
-import { deleteByUrl } from "../utils/cloudinary";
 
 const sellerService = new SellerService();
 
